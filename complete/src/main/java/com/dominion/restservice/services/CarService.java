@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,12 +22,19 @@ public class CarService {
     }
 
     public Optional<Car> getById(final Long id) {
-        Car foundCar = this.carRepository.getReferenceById(id);
+        Car foundCar;
+        try {
+            foundCar = this.carRepository.getReferenceById(id);
+        } catch (EntityNotFoundException entityNotFoundException) {
+            entityNotFoundException.printStackTrace();
+            foundCar = null;
+        }
+
         return Optional.ofNullable(foundCar);
     }
 
     public Car save(final Car car) {
-        Car savedCar = this.carRepository.save(car);
+        Car savedCar = this.carRepository.saveAndFlush(car);
         return savedCar;
     }
 
@@ -36,7 +44,7 @@ public class CarService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                                               String.format("The car with id %s was not found", car.getId()));
         }
-        Car updatedCar = this.carRepository.save(car);
+        Car updatedCar = this.carRepository.saveAndFlush(car);
 
         return updatedCar;
     }

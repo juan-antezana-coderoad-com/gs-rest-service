@@ -33,7 +33,7 @@ public class CarController {
      * @return the list of cars
      * @throws Exception the exception
      */
-    @GetMapping(value = "/cars")
+    @GetMapping(path = "/cars", produces = {"application/json"})
     public List<Car> getAllCars() throws Exception {
         List<Car> cars = this.carService.getAllCars();
         return cars;
@@ -46,14 +46,15 @@ public class CarController {
      * @return the found car
      * @throws Exception the exception
      */
-    @GetMapping(value = "/cars/{carId}")
+    @GetMapping(path = "/cars/{carId}", produces = {"application/json"})
     public Car getCar(@PathVariable("carId") Long carId) throws Exception {
         Optional<Car> carOptional = this.carService.getById(carId);
         if (!carOptional.isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                                               String.format("The car with id %s was not found", carId));
         }
-        return carOptional.get();
+        Car foundCar = carOptional.get();
+        return foundCar;
     }
 
     /**
@@ -62,7 +63,7 @@ public class CarController {
      * @param car the car to save
      * @return the saved car
      */
-    @PostMapping(value = "/cars")
+    @PostMapping(path = "/cars", produces = {"application/json"})
     private Car saveCar(@RequestBody Car car) {
         Car savedCar = this.carService.save(car);
         return savedCar;
@@ -77,7 +78,7 @@ public class CarController {
      * @throws Exception the exception
      * @see <a href="https://www.baeldung.com/spring-rest-json-patch">Using JSON Patch in Spring REST APIs</a>
      */
-    @PatchMapping(value = "/cars/{carId}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "/cars/{carId}", consumes = {"application/json-patch+json"}, produces = {"application/json"})
     private Car updateCar(@PathVariable("carId") Long carId, @RequestBody JsonPatch patch) throws Exception {
         Optional<Car> carOptional = this.carService.getById(carId);
         if (!carOptional.isPresent()) {
@@ -89,8 +90,8 @@ public class CarController {
         return updatedCar;
     }
 
-    @DeleteMapping("/cars/{carId}")
-    private void deleteCar(@PathVariable("carId") Long carId){
+    @DeleteMapping(path = "/cars/{carId}")
+    private void deleteCar(@PathVariable("carId") Long carId) {
         this.carService.delete(carId);
     }
 
