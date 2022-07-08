@@ -3,14 +3,14 @@ package com.dominion.restservice.services;
 import com.dominion.restservice.domain.Car;
 import com.dominion.restservice.repositories.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
-@Scope(value = "session")
-@Component(value = "carService")
+@Service
 public class CarService {
 
     @Autowired
@@ -20,7 +20,7 @@ public class CarService {
         return this.carRepository.findAll();
     }
 
-    public Optional<Car> getBy(Long id) {
+    public Optional<Car> getById(final Long id) {
         Car foundCar = this.carRepository.getReferenceById(id);
         return Optional.ofNullable(foundCar);
     }
@@ -30,8 +30,24 @@ public class CarService {
         return savedCar;
     }
 
-    public void delete(final Car car) {
-        this.carRepository.delete(car);
+    public Car update(final Car car) {
+        Optional<Car> optionalCar = this.getById(car.getId());
+        if (!optionalCar.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                              String.format("The car with id %s was not found", car.getId()));
+        }
+        Car updatedCar = this.carRepository.save(car);
+
+        return updatedCar;
     }
 
+    public void delete(final Long carId) {
+        Optional<Car> optionalCar = this.getById(carId);
+        if (!optionalCar.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                              String.format("The car with id %s was not found", carId));
+        }
+        Car car = optionalCar.get();
+        this.carRepository.delete(car);
+    }
 }

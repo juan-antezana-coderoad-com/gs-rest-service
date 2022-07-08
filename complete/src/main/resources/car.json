@@ -1,0 +1,8 @@
+{
+  "brand": "Chevrolet",
+  "model": "Blazer",
+  "maximum_speed": 250,
+  "engine": 2.8,
+  "features": "4 doors, folding seats, control",
+  "launch_date": "05/01/2019"
+}
